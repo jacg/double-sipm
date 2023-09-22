@@ -44,9 +44,9 @@ G4double delta_total_energy(G4Step const * step) {
 // Add energies deposited in this step to running totals of deposited energies in whole event
 void add_step_edep(std::vector<G4double>& total_edep, G4Step const* step) {
     auto step_solid_name = step -> GetPreStepPoint() -> GetTouchable() -> GetVolume() -> GetName();
-    auto particle_name = step -> GetTrack() -> GetDefinition() -> GetParticleName();
-    auto particle_pos = step -> GetTrack() -> GetPosition();
-    auto interaction = step -> GetPostStepPoint() -> GetProcessDefinedStep() -> GetProcessName();
+    auto interaction     = step -> GetPostStepPoint() -> GetProcessDefinedStep() -> GetProcessName();
+    auto particle_name   = step -> GetTrack() -> GetDefinition() -> GetParticleName();
+    auto particle_pos    = step -> GetTrack() -> GetPosition();
     // if (delta_total_energy(step) > 0) { G4cout << "Particle " << particle_name << " (Track ID: " << step -> GetTrack() -> GetTrackID() << ", Parent ID: " << step -> GetTrack() -> GetParentID() << ") " << " deposited " << delta_total_energy(step) << " energy, " << " process: " << interaction << G4endl; }
     if (step_solid_name == "Scintillator") {
         if      (particle_pos.z() > 0) { total_edep[0] += delta_total_energy(step); }
@@ -56,9 +56,9 @@ void add_step_edep(std::vector<G4double>& total_edep, G4Step const* step) {
 
 void gamma_interaction_z_pos(std::vector<std::vector<G4double>>& gamma_zs, G4Step const* step) {
     auto step_solid_name = step -> GetPreStepPoint() -> GetTouchable() -> GetVolume() -> GetName();
-    auto particle_name = step -> GetTrack() -> GetDefinition() -> GetParticleName();
-    auto particle_pos = step -> GetTrack() -> GetPosition();
-    auto interaction = step -> GetPostStepPoint() -> GetProcessDefinedStep() -> GetProcessName();
+    auto interaction     = step -> GetPostStepPoint() -> GetProcessDefinedStep() -> GetProcessName();
+    auto particle_name   = step -> GetTrack() -> GetDefinition() -> GetParticleName();
+    auto particle_pos    = step -> GetTrack() -> GetPosition();
     if ((particle_name == "gamma") && (step_solid_name == "Scintillator") && ((interaction == "compt") || (interaction == "phot"))) {
         if (particle_pos.z() > 0) { gamma_zs[0].push_back(particle_pos.z()); }
         else { gamma_zs[1].push_back(particle_pos.z()); };
