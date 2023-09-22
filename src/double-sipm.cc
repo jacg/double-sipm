@@ -1,10 +1,11 @@
-#include "geometry.hh"
 #include "generator.hh"
+#include "geometry.hh"
 #include "my.hh"
 
-#include <nain4.hh>
-#include <n4_ui.hh>
 #include <g4-mandatory.hh>
+#include <n4_run_manager.hh>
+#include <n4_ui.hh>
+#include <nain4.hh>
 
 #include <CLHEP/Vector/ThreeVector.h>
 #include <FTFP_BERT.hh>
@@ -12,15 +13,15 @@
 #include <G4LogicalVolume.hh>
 #include <G4MaterialPropertiesTable.hh>
 #include <G4OpticalPhysics.hh>
-#include <G4RotationMatrix.hh>
-#include <G4SubtractionSolid.hh>
-#include <G4RunManagerFactory.hh>
-#include <G4SystemOfUnits.hh>
 #include <G4RandomDirection.hh>
+#include <G4RotationMatrix.hh>
+#include <G4Run.hh>
+#include <G4RunManagerFactory.hh>
+#include <G4Step.hh>
+#include <G4SubtractionSolid.hh>
+#include <G4SystemOfUnits.hh>
 #include <G4ThreeVector.hh>
 #include <G4Tubs.hh>
-#include <G4Run.hh>
-#include <G4Step.hh>
 
 #include <G4Types.hh>
 #include <G4UIExecutive.hh>
@@ -29,7 +30,6 @@
 #include <G4VisManager.hh>
 #include <iostream>
 #include <memory>
-#include <n4_run_manager.hh>
 
 auto physics_list() {
     G4int verbosity;
