@@ -27,6 +27,7 @@
 #include <G4VisManager.hh>
 #include <iostream>
 #include <memory>
+#include <n4_run_manager.hh>
 
 auto physics_list() {
     G4int verbosity;
@@ -166,8 +167,11 @@ int main(int argc, char *argv[]) {
         else               { return G4ClassificationOfNewTrack::fUrgent; }
     };
 
-    // Setting mandatory G4 objects --------------------------
-    auto run_manager = n4::run_manager::create()
+
+    n4::run_manager::create()
+        .ui("double-sipm", argc, argv)
+        .macro_path("macs")
+        .apply_cli_early_macro() // CLI --early-macro executed at this point
         .physics(physics_list)
         .geometry([&]{ return make_geometry(times_of_arrival); })
         .actions( [&]{ return (new n4::actions{two_gammas})
@@ -177,18 +181,9 @@ int main(int argc, char *argv[]) {
             -> set((new n4::event_action())
                    -> begin(reset_photon_count)
                    -> end(write_photon_count))
-            -> set((new n4::stepping_action{accumulate_energy}));});
+            -> set((new n4::stepping_action{accumulate_energy}));})
             // -> set((new n4::stacking_action())
             //        -> classify(kill_secondaries));});
+        .run();
 
-    // Run the simulation
-
-    // + No CLI arguments: open GUI (using the settings in macs/vis.mac)
-
-    // + 1 CLI argument (a macro file such as `macs/run.mac`): run in
-    //     batch mode, with the specified macro
-
-    // Batch mode will run the simulation much more quickly, because it will not
-    // spend resources on drawing trajectories.
-    n4::ui(argc, argv);
 }

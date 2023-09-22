@@ -9,7 +9,7 @@ build:
 
 run *ARGS: build
   #!/usr/bin/env sh
-  just run-dispatch-vis-cli ./build/app/CHANGEME-my-n4-prog {{ARGS}}
+  just run-dispatch-vis-cli ./build/app/double-sipm {{ARGS}}
   exit $?
 
 clean:
