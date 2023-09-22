@@ -1,17 +1,38 @@
 {
   "nodes": {
-    "flake-utils": {
+    "flake-compat": {
+      "flake": false,
       "locked": {
-        "lastModified": 1614513358,
-        "narHash": "sha256-LakhOx3S1dRjnh0b5Dg3mbZyH0ToC9I8Y2wKSkBaTzU=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "5466c5bbece17adaab2d82fae80b46e807611bf3",
+        "lastModified": 1673956053,
+        "narHash": "sha256-4gtG9iQuiKITOjNQQeQIpoIB6b16fm+504Ch3sNKLd8=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "35bb57c0c8d8b62bbfd284272c928ceb64ddbde9",
         "type": "github"
       },
       "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
+    "nain4": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "nixpkgs": "nixpkgs",
+        "nosys": "nosys"
+      },
+      "locked": {
+        "lastModified": 1695278096,
+        "narHash": "sha256-A4w+3+qRgSpt1uf8DvNLHX/NDibI1iMVzBnWxy2DmNo=",
+        "owner": "jacg",
+        "repo": "nain4",
+        "rev": "4d3dd766d7f86de8fdd06b3dcfa163fd9f138dbc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jacg",
+        "repo": "nain4",
         "type": "github"
       }
     },
@@ -31,10 +52,32 @@
         "type": "github"
       }
     },
+    "nosys": {
+      "locked": {
+        "lastModified": 1685411599,
+        "narHash": "sha256-+W6yxZXJwta1zIruKMmXwayLZvqLjRZ7L/VnQFNyRJw=",
+        "owner": "divnix",
+        "repo": "nosys",
+        "rev": "6e168298ce2f9aa9fc6ef85ded56b07f41d90d18",
+        "type": "github"
+      },
+      "original": {
+        "owner": "divnix",
+        "repo": "nosys",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nain4": "nain4",
+        "nixpkgs": [
+          "nain4",
+          "nixpkgs"
+        ],
+        "nosys": [
+          "nain4",
+          "nosys"
+        ]
       }
     }
   },
