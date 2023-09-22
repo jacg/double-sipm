@@ -1,6 +1,6 @@
-#include "nain4.hh"
-
 #include "materials.hh"
+
+#include <nain4.hh>
 
 #include <G4SystemOfUnits.hh>
 
@@ -10,7 +10,7 @@ using vec_double = std::vector<G4double>;
 const G4double hc = CLHEP::h_Planck * CLHEP::c_light;
 const vec_double OPTPHOT_ENERGY_RANGE{1*eV, 8.21*eV};
 
-G4Material* csi_with_properties() {
+G4Material* csi_with_properties(const my& my) {
     auto csi = n4::material("G4_CESIUM_IODIDE");
     // csi_rindex: values taken from "Optimization of Parameters for a CsI(Tl) Scintillator Detector Using GEANT4-Based Monte Carlo..." by Mitra et al (mainly page 3)
     //  csi_scint: values from Fig. 2 in "A New Scintillation Material: Pure CsI with 10ns Decay Time" by Kubota et al (these are approximate...)
@@ -23,7 +23,7 @@ G4Material* csi_with_properties() {
     auto    csi_abslength = n4::scale_by(m    , {5     , 5     , 5    , 5     });
     // Values from "Temperature dependence of pure CsI: scintillation light yield and decay time" by Amsler et al
     // "cold" refers to ~77K, i.e. liquid nitrogen temperature
-    G4double csi_scint_yield      =  2000 / MeV;
+    G4double csi_scint_yield      =  my.csi_scint_yield;
     G4double csi_scint_yield_cold = 50000 / MeV;
     G4double csi_time_fast        =     6 * ns;
     G4double csi_time_slow        =    28 * ns;
@@ -37,7 +37,6 @@ G4Material* csi_with_properties() {
         .add("SCINTILLATIONTIMECONSTANT1", csi_time_fast)
         .add("SCINTILLATIONTIMECONSTANT2", csi_time_slow)
         .add("SCINTILLATIONYIELD"        , csi_scint_yield)
-        //.add("SCINTILLATIONYIELD"        ,   5 / MeV) // for testing
         .add("SCINTILLATIONYIELD1"       ,     0.57   )
         .add("SCINTILLATIONYIELD2"       ,     0.43   )
         .add("RESOLUTIONSCALE"           ,     1.0    )

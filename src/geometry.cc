@@ -35,8 +35,8 @@ G4double detection_probability(G4double energy, vec_double& energies, vec_double
 void place_csi_teflon_border_surface_between(G4PVPlacement* one, G4PVPlacement* two);
 n4::sensitive_detector* sensitive_detector(G4int nb_detectors_per_side, std::vector<vec_double>& times_of_arrival);
 
-G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arrival) {
-    auto csi    =    csi_with_properties();
+G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arrival, const my& my) {
+    auto csi    =    csi_with_properties(my);
     auto air    =    air_with_properties();
     auto teflon = teflon_with_properties();
     auto plastic = n4::material("G4_POLYCARBONATE"); // probably wrong

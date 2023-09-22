@@ -1,8 +1,10 @@
-#include "nain4.hh"
-#include "n4_ui.hh"
-#include "g4-mandatory.hh"
 #include "geometry.hh"
 #include "generator.hh"
+#include "my.hh"
+
+#include <nain4.hh>
+#include <n4_ui.hh>
+#include <g4-mandatory.hh>
 
 #include <CLHEP/Vector/ThreeVector.h>
 #include <FTFP_BERT.hh>
@@ -167,13 +169,14 @@ int main(int argc, char *argv[]) {
         else               { return G4ClassificationOfNewTrack::fUrgent; }
     };
 
+    my my;
 
     n4::run_manager::create()
         .ui("double-sipm", argc, argv)
         .macro_path("macs")
         .apply_cli_early_macro() // CLI --early-macro executed at this point
         .physics(physics_list)
-        .geometry([&]{ return make_geometry(times_of_arrival); })
+        .geometry([&]{ return make_geometry(times_of_arrival, my); })
         .actions( [&]{ return (new n4::actions{two_gammas})
             -> set((new n4::run_action())
                    -> begin(open_file)
