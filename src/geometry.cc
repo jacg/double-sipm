@@ -64,8 +64,9 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
     G4int nb_detectors_per_side = 3;
     G4double detector_width = scint_xy / nb_detectors_per_side; // assumes the detectors are square
     G4double detector_depth = detector_width; // this will make the detectors cubes
-    auto detector = n4::box{"Detector"}.xy(detector_width).z(detector_depth).volume(air); // material doesn't matter
-    detector -> SetSensitiveDetector(sensitive_detector(nb_detectors_per_side, times_of_arrival));
+    auto detector = n4::box{"Detector"}.xy(detector_width).z(detector_depth)
+        .sensitive(sensitive_detector(nb_detectors_per_side, times_of_arrival))
+        .volume(air); // material doesn't matter: everything entering the detector is stopped immediately
 
     for (G4int side=0; side<2; side++) {
         for (G4int i=0; i<nb_detectors_per_side; i++) {
