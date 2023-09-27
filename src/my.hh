@@ -11,12 +11,7 @@ struct my {
   std::unique_ptr<G4ParticleGun> gun{};
   G4String particle = "e-";
 
-  my() : msngr{new G4GenericMessenger{nullptr, "/my/", "docs: bla bla bla"}} {
-    // The trailing slash after '/my' is CRUCIAL: without it, the msngr
-    // violates the principle of least surprise.
-    msngr -> DeclarePropertyWithUnit("example_with_unit", "m", example_with_unit);
-    msngr -> DeclareProperty        ("csi_scint_yield"  ,      csi_scint_yield); // No unit because messenger does not understand `1 / MeV`
-  }
+  my();
   std::unique_ptr<G4GenericMessenger> msngr;
 };
 
