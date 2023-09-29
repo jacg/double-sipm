@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
     n4::run_manager::create()
         .ui("double-sipm", argc, argv)
         .macro_path("macs")
-        .apply_cli_early_macro() // CLI --early-macro executed at this point
+        .apply_cli_early() // CLI --early executed at this point
         .physics(physics_list)
         .geometry([&]{ return make_geometry(times_of_arrival, my); })
         .actions( [&]{ return (new n4::actions{two_gammas})
