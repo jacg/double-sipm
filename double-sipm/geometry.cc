@@ -73,8 +73,8 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
                 G4double xpos = (i - ((float) nb_detectors_per_side/2 - 0.5)) * detector_width;
                 G4double ypos = (j - ((float) nb_detectors_per_side/2 - 0.5)) * detector_width;
                 G4double zpos;
-                if (side == 0) { zpos =   scintillator_offset + scint_z/2 + detector_depth/2;  }
-                else           { zpos = -(scintillator_offset + scint_z/2 + detector_depth/2); }
+                if (side == 0) { zpos =   scintillator_offset + coating_thck/2 + scint_z/2 + detector_depth/2;  }
+                else           { zpos = -(scintillator_offset + coating_thck/2 + scint_z/2 + detector_depth/2); }
                 n4::place(detector)
                     .in(world)
                     .at({xpos, ypos, zpos})
@@ -99,8 +99,11 @@ n4::sensitive_detector* sensitive_detector(G4int nb_detectors_per_side, std::vec
         auto photon_energy   = photon_momentum.mag();
 
         // Pixel pitch 25 um
-        auto sipm_energies = n4::scale_by(hc*eV, {1/0.9 , 1/0.7, 1/0.5  , 1/0.46 , 1/0.4 , 1/0.32});
-        std::vector<G4double> sipm_pdes =        {  0.03,   0.1,   0.245,   0.255,   0.23,   0.02};
+        // auto sipm_energies = n4::scale_by(hc*eV, {1/0.9 , 1/0.7, 1/0.5  , 1/0.46 , 1/0.4 , 1/0.32});
+        // std::vector<G4double> sipm_pdes =        {  0.03,   0.1,   0.245,   0.255,   0.23,   0.02};
+        auto sipm_energies = n4::scale_by(hc*eV, {1/0.9 , 1/0.7, 1/0.5  , 1/0.46 , 1/0.4 , 1/0.36, 1/0.34, 1/0.3 , 1/0.28});
+        std::vector<G4double> sipm_pdes =        {  0.03,   0.1,   0.245,   0.255,   0.23,   0.18,   0.18,   0.14,   0.02};
+
 
         if (G4UniformRand() < detection_probability(photon_energy, sipm_energies, sipm_pdes)) {
             if (copy_nb < pow(nb_detectors_per_side, 2)) { times_of_arrival[0].push_back(time); }
@@ -130,7 +133,7 @@ void place_csi_teflon_border_surface_between(G4PVPlacement* one, G4PVPlacement* 
         // According to the docs, for UNIFIED, dielectric_dielectric surfaces only the Lambertian reflection is turned on
         csi_teflon_surface -> SetMaterialPropertiesTable(
             n4::material_properties{}
-            .add("REFLECTIVITY", pp, {0.98 , 0.98})
+            .add("REFLECTIVITY", pp, {1.0 , 1.0})
             .done());
     }
     new G4LogicalBorderSurface(name, one, two, csi_teflon_surface);
