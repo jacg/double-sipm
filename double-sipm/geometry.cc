@@ -31,29 +31,9 @@ using vec_int    = std::vector<G4int>;
 
 const G4double hc = CLHEP::h_Planck * CLHEP::c_light;
 
-G4double detection_probability(G4double energy, std::vector<G4double>& energies, std::vector<G4double>& scintillation);
-
-void place_csi_teflon_border_surface_between(G4PVPlacement* one, G4PVPlacement* two) {
-    static G4OpticalSurface* csi_teflon_surface = nullptr;
-    auto name = "CsI-TeflonSurface";
-    if (! csi_teflon_surface) {
-        csi_teflon_surface = new G4OpticalSurface(name);
-        // Values from same paper as above ("Optimization of Parameters...")
-        // "groundfrontpainted" (I think) only considers whether the photon is reflected or absorbed, so there will be no shine through visible in the simulation
-        csi_teflon_surface -> SetType(dielectric_dielectric);
-        csi_teflon_surface -> SetModel(unified);
-        csi_teflon_surface -> SetFinish(groundfrontpainted);
-        csi_teflon_surface -> SetSigmaAlpha(0.0);
-
-        vec_double pp = {2.038*eV, 4.144*eV};
-        // According to the docs, for UNIFIED, dielectric_dielectric surfaces only the Lambertian reflection is turned on
-        csi_teflon_surface -> SetMaterialPropertiesTable(
-            n4::material_properties{}
-            .add("REFLECTIVITY", pp, {0.98 , 0.98})
-            .done());
-    }
-    new G4LogicalBorderSurface(name, one, two, csi_teflon_surface);
-}
+G4double detection_probability(G4double energy, vec_double& energies, vec_double& scintillation);
+void place_csi_teflon_border_surface_between(G4PVPlacement* one, G4PVPlacement* two);
+n4::sensitive_detector* sensitive_detector(G4int nb_detectors_per_side, std::vector<vec_double>& times_of_arrival);
 
 G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arrival) {
     auto csi    =    csi_with_properties();
@@ -64,7 +44,7 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
     auto world = n4::box{"World"}.cube(100*mm).volume(air);
 
     auto source_ring = n4::tubs("SourceRing").r_inner(9.5*mm).r(12.5*mm).z(3*mm).volume(plastic);
-    n4::place(source_ring).in(world).rotate_y(90*deg).at({0, 0, 0}).now();
+    n4::place(source_ring).in(world).rot_y(90*deg).at({0, 0, 0}).now();
 
     // ---- Teflon-coated scintillators ----------------------------------------------------------------------
     auto scint_xy = 3*mm, scint_z = 20*mm, coating_thck = 0.25*mm,  scintillator_offset = 23*mm;
@@ -73,18 +53,19 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
     auto scintillator = n4::box("Scintillator").xy(scint_xy                 ).z(scint_z               ).place (csi)
         .in(coating_log).at(0, 0, coating_thck/2).now();
     // Make a reusable (place many times) logical volume, containing: scintillator, coating and border-surface-between-them
-    auto coated_scint_log = n4::envelope_of(coating_log);
+    auto coated_scint_log = n4::envelope_of(coating_log, "Coated-scintillator");
     auto coating = n4::place(coating_log).in(coated_scint_log).now();
     place_csi_teflon_border_surface_between(scintillator, coating);
     // Reuse coated scintillator with optical border, however many times you need
-    n4::place(coated_scint_log).in(world).at(0, 0, scintillator_offset).rotate_y(  0*deg).copy_no(0).now();
-    n4::place(coated_scint_log).in(world).at(0, 0, scintillator_offset).rotate_y(180*deg).copy_no(1).now();
+    n4::place(coated_scint_log).in(world).at(0, 0, scintillator_offset).rot_y(  0*deg).copy_no(0).now();
+    n4::place(coated_scint_log).in(world).at(0, 0, scintillator_offset).rot_y(180*deg).copy_no(1).now();
 
     // ---- Detector geometry --------------------------------------------------------------------------------
     G4int nb_detectors_per_side = 3;
     G4double detector_width = scint_xy / nb_detectors_per_side; // assumes the detectors are square
     G4double detector_depth = detector_width; // this will make the detectors cubes
     auto detector = n4::box{"Detector"}.xy(detector_width).z(detector_depth).volume(air); // material doesn't matter
+    detector -> SetSensitiveDetector(sensitive_detector(nb_detectors_per_side, times_of_arrival));
 
     for (G4int side=0; side<2; side++) {
         for (G4int i=0; i<nb_detectors_per_side; i++) {
@@ -102,8 +83,11 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
             }
         }
     }
+    // -------------------------------------------------------------------------------------------------------
+    return n4::place(world).now();
+}
 
-    // ---- Detector behaviour -------------------------------------------------------------------------------
+n4::sensitive_detector* sensitive_detector(G4int nb_detectors_per_side, std::vector<vec_double>& times_of_arrival) {
     auto process_hits = [nb_detectors_per_side, &times_of_arrival](G4Step* step) {
         G4Track* track = step -> GetTrack();
         track -> SetTrackStatus(fStopAndKill);
@@ -127,13 +111,32 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
     };
 
     auto end_of_event = [](G4HCofThisEvent* what) {};
-    auto sens_detector = (new n4::sensitive_detector{"Detector", process_hits}) -> end_of_event(end_of_event);
-    detector -> SetSensitiveDetector(sens_detector);
-    // -------------------------------------------------------------------------------------------------------
-    return n4::place(world).now();
+    return (new n4::sensitive_detector{"Detector", process_hits}) -> end_of_event(end_of_event);
 }
 
-G4double detection_probability(G4double energy, std::vector<G4double>& energies, std::vector<G4double>& scintillation) {
+void place_csi_teflon_border_surface_between(G4PVPlacement* one, G4PVPlacement* two) {
+    static G4OpticalSurface* csi_teflon_surface = nullptr;
+    auto name = "CsI-TeflonSurface";
+    if (! csi_teflon_surface) {
+        csi_teflon_surface = new G4OpticalSurface(name);
+        // Values from same paper as above ("Optimization of Parameters...")
+        // "groundfrontpainted" (I think) only considers whether the photon is reflected or absorbed, so there will be no shine through visible in the simulation
+        csi_teflon_surface -> SetType(dielectric_dielectric);
+        csi_teflon_surface -> SetModel(unified);
+        csi_teflon_surface -> SetFinish(groundfrontpainted);
+        csi_teflon_surface -> SetSigmaAlpha(0.0);
+
+        vec_double pp = {2.038*eV, 4.144*eV};
+        // According to the docs, for UNIFIED, dielectric_dielectric surfaces only the Lambertian reflection is turned on
+        csi_teflon_surface -> SetMaterialPropertiesTable(
+            n4::material_properties{}
+            .add("REFLECTIVITY", pp, {0.98 , 0.98})
+            .done());
+    }
+    new G4LogicalBorderSurface(name, one, two, csi_teflon_surface);
+}
+
+G4double detection_probability(G4double energy, vec_double& energies, vec_double& scintillation) {
     // Detection probablity = 0 if energy lies outside of range
     if (! (energies.front() <= energy && energy <= energies.back())) { return 0; }
 
