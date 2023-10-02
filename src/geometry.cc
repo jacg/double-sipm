@@ -44,7 +44,7 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
     auto world = n4::box{"World"}.cube(100*mm).volume(air);
 
     auto source_ring = n4::tubs("SourceRing").r_inner(9.5*mm).r(12.5*mm).z(3*mm).volume(plastic);
-    n4::place(source_ring).in(world).rot_y(90*deg).at({0, 0, 0}).now();
+    n4::place(source_ring).in(world).rot_y(90*deg).at(0, 0, 0).now();
 
     // ---- Teflon-coated scintillators ----------------------------------------------------------------------
     auto scint_xy = 3*mm, scint_z = 20*mm, coating_thck = 0.25*mm,  scintillator_offset = 23*mm;
@@ -78,7 +78,7 @@ G4PVPlacement* make_geometry(std::vector<std::vector<G4double>>& times_of_arriva
                 else           { zpos = -(scintillator_offset + coating_thck/2 + scint_z/2 + detector_depth/2); }
                 n4::place(detector)
                     .in(world)
-                    .at({xpos, ypos, zpos})
+                    .at(xpos, ypos, zpos)
                     .copy_no(side*pow(nb_detectors_per_side, 2) + i*nb_detectors_per_side + j)
                     .now();
             }
