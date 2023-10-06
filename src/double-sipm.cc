@@ -70,9 +70,9 @@ int main(int argc, char *argv[]) {
     auto two_gammas = [](auto event){ generate_back_to_back_511_keV_gammas(event, {}, 0); };
 
     // Random number seed, also used to name the files
-    G4long seed = 123456789;
-    auto seed_string = std::to_string(seed);
-    G4Random::setTheSeed(seed);
+    my my;
+    auto seed_string = std::to_string(my::seed);
+    G4Random::setTheSeed(my::seed);
 
     // Open output file at start of run, close it at the end of the run
     std::ofstream gamma_z_data_file_0; std::ofstream gamma_z_data_file_1;
@@ -165,8 +165,6 @@ int main(int argc, char *argv[]) {
         if (parent_ID > 0) { return G4ClassificationOfNewTrack::fKill;   }
         else               { return G4ClassificationOfNewTrack::fUrgent; }
     };
-
-    my my;
 
     n4::run_manager::create()
         .ui("double-sipm", argc, argv)

@@ -11,8 +11,12 @@ struct my {
   std::unique_ptr<G4ParticleGun> gun{};
   G4String particle = "e-";
 
+  static G4long seed;
   my();
+
+private:
   std::unique_ptr<G4GenericMessenger> msngr;
+  void set_random_seed(G4long seed);
 };
 
 #endif // MY_HH
