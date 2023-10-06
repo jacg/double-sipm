@@ -1,7 +1,6 @@
 #include "generator.hh"
 
-#include <g4-mandatory.hh>
-#include <nain4.hh>
+#include <n4-all.hh>
 
 #include <CLHEP/Vector/ThreeVector.h>
 #include <FTFP_BERT.hh>
