@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     auto two_gammas = [](auto event){ generate_back_to_back_511_keV_gammas(event, {}, 0); };
 
     // Random number seed, also used to name the files
-    G4long seed = time(NULL);
+    G4long seed = 123456789;
     auto seed_string = std::to_string(seed);
     G4Random::setTheSeed(seed);
 
